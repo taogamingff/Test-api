@@ -2,995 +2,549 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-  >
-
-  <meta name="theme-color" content="#090909">
-
-  <title>FFVN.TGM IMAGE API</title>
+  <title>FFVN.TGM Image Upload</title>
 
   <style>
     * {
       box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
     }
 
-    html,
     body {
       margin: 0;
-      padding: 0;
-      min-height: 100%;
-    }
-
-    body {
       min-height: 100vh;
+      font-family: Arial, sans-serif;
       background:
-        radial-gradient(
-          circle at 50% -10%,
-          rgba(255, 115, 0, .22),
-          transparent 40%
-        ),
-        #080808;
-
-      color: #fff;
-
-      font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
+        radial-gradient(circle at top, #ff6a00 0%, transparent 35%),
+        linear-gradient(135deg, #050505, #151515);
+      color: white;
       display: flex;
-      justify-content: center;
       align-items: center;
-
-      padding:
-        20px
-        15px
-        calc(20px + env(safe-area-inset-bottom));
+      justify-content: center;
+      padding: 20px;
     }
 
-    .app {
+    .box {
       width: 100%;
       max-width: 520px;
-
-      padding: 22px;
-
+      padding: 25px;
+      border: 1px solid rgba(255,255,255,.15);
       border-radius: 24px;
-
-      background:
-        linear-gradient(
-          145deg,
-          rgba(255,255,255,.09),
-          rgba(255,255,255,.035)
-        );
-
-      border:
-        1px solid rgba(255,140,0,.25);
-
-      box-shadow:
-        0 25px 80px rgba(0,0,0,.65),
-        inset 0 1px 0 rgba(255,255,255,.06);
-
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-    }
-
-    .logo {
-      width: 76px;
-      height: 76px;
-
-      display: block;
-
-      margin: 0 auto 13px;
-
-      border-radius: 20px;
-
-      object-fit: cover;
-
-      border:
-        1px solid rgba(255,140,0,.35);
-
-      box-shadow:
-        0 0 35px rgba(255,100,0,.18);
+      background: rgba(20,20,20,.85);
+      backdrop-filter: blur(15px);
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
     }
 
     h1 {
-      margin: 0;
-
+      margin: 0 0 8px;
       text-align: center;
-
-      font-size: 24px;
-      font-weight: 900;
-
-      color: #ff8a00;
-
-      letter-spacing: .4px;
+      font-size: 25px;
     }
 
-    .subtitle {
+    .sub {
       text-align: center;
-
-      color: #999;
-
-      font-size: 13px;
-
-      line-height: 1.5;
-
-      margin:
-        8px
-        0
-        22px;
+      color: #aaa;
+      margin-bottom: 25px;
     }
 
-    .select-box {
-      display: block;
-
+    .upload {
       width: 100%;
-
-      padding: 27px 15px;
-
-      border:
-        2px dashed
-        rgba(255,140,0,.45);
-
-      border-radius: 18px;
-
+      display: block;
+      padding: 16px;
+      border-radius: 15px;
+      background: linear-gradient(135deg,#ff7a00,#ff3d00);
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
       text-align: center;
-
       cursor: pointer;
-
-      background:
-        rgba(255,120,0,.045);
-
-      transition:
-        .2s ease;
+      border: 0;
     }
 
-    .select-box:active {
-      transform: scale(.985);
-    }
-
-    .select-icon {
-      font-size: 34px;
-
-      margin-bottom: 9px;
-    }
-
-    .select-title {
-      font-size: 16px;
-
-      font-weight: 800;
-
-      margin-bottom: 6px;
-    }
-
-    .select-desc {
-      color: #999;
-
-      font-size: 12px;
-    }
-
-    #fileInput {
+    input[type="file"] {
       display: none;
-    }
-
-    .preview-wrap {
-      display: none;
-
-      margin-top: 18px;
-
-      overflow: hidden;
-
-      border-radius: 17px;
-
-      background: #000;
-
-      border:
-        1px solid rgba(255,255,255,.08);
     }
 
     #preview {
-      display: block;
-
       width: 100%;
-
-      max-height: 360px;
-
+      max-height: 300px;
       object-fit: contain;
-
+      margin-top: 20px;
+      border-radius: 16px;
+      display: none;
       background: #000;
     }
 
-    .progress-wrap {
-      display: none;
-
-      margin-top: 18px;
-    }
-
-    .progress-top {
-      display: flex;
-
-      justify-content: space-between;
-
-      color: #aaa;
-
-      font-size: 12px;
-
-      margin-bottom: 8px;
-    }
-
-    .progress {
+    button {
       width: 100%;
-
-      height: 10px;
-
-      overflow: hidden;
-
-      border-radius: 20px;
-
-      background: #202020;
-    }
-
-    .bar {
-      width: 0%;
-
-      height: 100%;
-
-      border-radius: inherit;
-
-      background:
-        linear-gradient(
-          90deg,
-          #ff5a00,
-          #ffae00
-        );
-
-      transition:
-        width .12s linear;
-    }
-
-    .status {
-      min-height: 21px;
-
-      text-align: center;
-
-      margin-top: 14px;
-
-      color: #aaa;
-
-      font-size: 13px;
-
-      line-height: 1.45;
-    }
-
-    .success {
-      color: #63e889;
-    }
-
-    .error {
-      color: #ff6262;
-    }
-
-    .result {
-      display: none;
-
-      margin-top: 18px;
-
-      padding: 14px;
-
-      border-radius: 16px;
-
-      background: rgba(0,0,0,.28);
-
-      border:
-        1px solid rgba(255,255,255,.07);
-    }
-
-    .result-title {
-      font-size: 13px;
-
-      font-weight: 800;
-
-      color: #ff9a2e;
-
-      margin-bottom: 9px;
-    }
-
-    .url-row {
-      display: flex;
-
-      gap: 8px;
-    }
-
-    #url {
-      min-width: 0;
-      flex: 1;
-
+      margin-top: 15px;
+      padding: 15px;
       border: 0;
-
-      outline: 0;
-
-      border-radius: 10px;
-
-      padding: 12px;
-
-      color: #ddd;
-
-      background: #151515;
-
-      font-size: 12px;
-    }
-
-    .copy-btn {
-      flex: 0 0 auto;
-
-      border: 0;
-
-      border-radius: 10px;
-
-      padding:
-        0
-        15px;
-
-      color: #fff;
-
-      background: #ff7200;
-
-      font-weight: 800;
-
+      border-radius: 15px;
+      background: #222;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
       cursor: pointer;
     }
 
-    .open-btn {
-      display: block;
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
 
+    .progress-box {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .progress-bg {
       width: 100%;
+      height: 12px;
+      background: #333;
+      border-radius: 20px;
+      overflow: hidden;
+    }
 
-      margin-top: 9px;
+    #progress {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg,#ff8a00,#ff3d00);
+      transition: width .15s;
+    }
 
-      padding: 12px;
-
-      border-radius: 10px;
-
+    #percent {
       text-align: center;
-
-      text-decoration: none;
-
-      color: #fff;
-
-      background: #202020;
-
-      font-size: 13px;
-
-      font-weight: 700;
+      margin-top: 8px;
+      color: #ff9800;
+      font-weight: bold;
     }
 
-    .info {
-      margin-top: 18px;
+    #status {
+      margin-top: 20px;
+      padding: 14px;
+      border-radius: 12px;
+      background: #111;
+      word-break: break-word;
+      line-height: 1.5;
+    }
 
+    .url-box {
+      display: none;
+      margin-top: 15px;
+    }
+
+    .url-box input {
+      width: 100%;
       padding: 13px;
-
-      border-radius: 13px;
-
-      background: rgba(255,255,255,.035);
-
-      color: #888;
-
-      font-size: 11px;
-
-      line-height: 1.65;
+      border-radius: 10px;
+      border: 1px solid #444;
+      background: #080808;
+      color: white;
+      outline: none;
     }
 
-    .info b {
-      color: #aaa;
-    }
-
-    @media (max-width: 390px) {
-
-      .app {
-        padding: 18px;
-      }
-
-      h1 {
-        font-size: 21px;
-      }
-
-      .url-row {
-        flex-direction: column;
-      }
-
-      .copy-btn {
-        min-height: 43px;
-      }
+    .open {
+      background: #ff6a00;
     }
   </style>
 </head>
 
 <body>
 
-  <main class="app">
+<div class="box">
 
-    <img
-      class="logo"
-      src="https://cdn.imagetourls.com/uploads/tyImg/1ggIdgxtr.jpg"
-      alt="FFVN.TGM"
-    >
+  <h1>🔥 FFVN.TGM IMAGE UPLOAD</h1>
 
-    <h1>FFVN.TGM IMAGE API</h1>
+  <div class="sub">
+    Upload ảnh lên Vercel Blob Public
+  </div>
 
-    <div class="subtitle">
-      Upload ảnh từ Album → Vercel Blob → URL ảnh trực tiếp
+  <label class="upload" for="file">
+    📱 CHỌN ẢNH TỪ ALBUM
+  </label>
+
+  <input
+    id="file"
+    type="file"
+    accept="image/*"
+  >
+
+  <img id="preview" alt="Preview">
+
+  <button id="uploadBtn" disabled>
+    🚀 UPLOAD ẢNH
+  </button>
+
+  <div class="progress-box" id="progressBox">
+    <div class="progress-bg">
+      <div id="progress"></div>
     </div>
 
-    <label
-      class="select-box"
-      for="fileInput"
-    >
+    <div id="percent">0%</div>
+  </div>
 
-      <div class="select-icon">
-        📷
-      </div>
+  <div id="status">
+    Chưa chọn ảnh.
+  </div>
 
-      <div class="select-title">
-        CHỌN ẢNH TỪ ALBUM
-      </div>
-
-      <div class="select-desc">
-        JPG · JPEG · PNG · WEBP · GIF
-      </div>
-
-    </label>
+  <div class="url-box" id="urlBox">
 
     <input
-      id="fileInput"
-      type="file"
-      accept="image/jpeg,image/png,image/webp,image/gif"
+      id="imageUrl"
+      type="text"
+      readonly
     >
 
-    <div
-      id="previewWrap"
-      class="preview-wrap"
+    <button id="copyBtn">
+      📋 SAO CHÉP URL
+    </button>
+
+    <button
+      id="openBtn"
+      class="open"
     >
-      <img
-        id="preview"
-        alt="Preview"
-      >
-    </div>
+      🔗 MỞ ẢNH
+    </button>
 
-    <div
-      id="progressWrap"
-      class="progress-wrap"
-    >
+  </div>
 
-      <div class="progress-top">
-
-        <span>
-          ĐANG UPLOAD
-        </span>
-
-        <span id="percent">
-          0%
-        </span>
-
-      </div>
-
-      <div class="progress">
-        <div
-          id="bar"
-          class="bar"
-        ></div>
-      </div>
-
-    </div>
-
-    <div
-      id="status"
-      class="status"
-    ></div>
-
-    <div
-      id="result"
-      class="result"
-    >
-
-      <div class="result-title">
-        ✅ URL ẢNH
-      </div>
-
-      <div class="url-row">
-
-        <input
-          id="url"
-          type="text"
-          readonly
-        >
-
-        <button
-          id="copyBtn"
-          class="copy-btn"
-          type="button"
-        >
-          COPY
-        </button>
-
-      </div>
-
-      <a
-        id="openBtn"
-        class="open-btn"
-        href="#"
-        target="_blank"
-        rel="noopener"
-      >
-        🔗 MỞ ẢNH TRỰC TIẾP
-      </a>
-
-    </div>
-
-    <div class="info">
-
-      <b>Hệ thống:</b>
-      Vercel Blob Public Storage<br>
-
-      <b>File output:</b>
-      images.png<br>
-
-      <b>Upload:</b>
-      Client → Vercel Blob<br>
-
-      <b>Token:</b>
-      Không được đưa vào HTML
-
-    </div>
-
-  </main>
+</div>
 
 
-<script type="module">
+<script>
 
-  import { upload } from
-    "https://esm.sh/@vercel/blob@2.8.0/client";
+const fileInput = document.getElementById("file");
+const preview = document.getElementById("preview");
+const uploadBtn = document.getElementById("uploadBtn");
 
+const progressBox = document.getElementById("progressBox");
+const progress = document.getElementById("progress");
+const percent = document.getElementById("percent");
 
-  const fileInput =
-    document.getElementById("fileInput");
+const statusBox = document.getElementById("status");
 
-  const previewWrap =
-    document.getElementById("previewWrap");
+const urlBox = document.getElementById("urlBox");
+const imageUrl = document.getElementById("imageUrl");
 
-  const preview =
-    document.getElementById("preview");
+const copyBtn = document.getElementById("copyBtn");
+const openBtn = document.getElementById("openBtn");
 
-  const progressWrap =
-    document.getElementById("progressWrap");
-
-  const bar =
-    document.getElementById("bar");
-
-  const percent =
-    document.getElementById("percent");
-
-  const status =
-    document.getElementById("status");
-
-  const result =
-    document.getElementById("result");
-
-  const url =
-    document.getElementById("url");
-
-  const copyBtn =
-    document.getElementById("copyBtn");
-
-  const openBtn =
-    document.getElementById("openBtn");
+let selectedFile = null;
 
 
-  function setStatus(
-    text,
-    type = ""
-  ) {
+/*
+  CHỌN ẢNH
+*/
+fileInput.addEventListener("change", async function () {
 
-    status.textContent = text;
+  const file = this.files[0];
 
-    status.className =
-      "status " + type;
-
+  if (!file) {
+    selectedFile = null;
+    uploadBtn.disabled = true;
+    return;
   }
 
+  if (!file.type.startsWith("image/")) {
 
-  function resetProgress() {
+    statusBox.textContent =
+      "❌ File được chọn không phải hình ảnh.";
 
-    bar.style.width = "0%";
-
-    percent.textContent = "0%";
-
+    uploadBtn.disabled = true;
+    return;
   }
-
 
   /*
-   * Chuyển ảnh bất kỳ thành PNG.
-   *
-   * Vì pathname luôn là images.png,
-   * body upload cũng phải thật sự là PNG.
-   */
-  async function convertToPng(file) {
+    Giới hạn ảnh gốc 15MB.
+    Sau khi chuyển PNG sẽ kiểm tra tiếp.
+  */
+  if (file.size > 15 * 1024 * 1024) {
 
-    const objectUrl =
-      URL.createObjectURL(file);
+    statusBox.textContent =
+      "❌ Ảnh quá lớn. Vui lòng chọn ảnh dưới 15MB.";
 
-    try {
-
-      const image =
-        new Image();
-
-      image.decoding = "async";
-
-      image.src = objectUrl;
-
-      await image.decode();
-
-
-      const maxSize = 4096;
-
-      let width =
-        image.naturalWidth;
-
-      let height =
-        image.naturalHeight;
-
-
-      /*
-       * Giới hạn kích thước cực lớn
-       * để tránh trình duyệt quá tải.
-       */
-      if (
-        width > maxSize ||
-        height > maxSize
-      ) {
-
-        const scale =
-          Math.min(
-            maxSize / width,
-            maxSize / height
-          );
-
-        width =
-          Math.max(
-            1,
-            Math.round(width * scale)
-          );
-
-        height =
-          Math.max(
-            1,
-            Math.round(height * scale)
-          );
-
-      }
-
-
-      const canvas =
-        document.createElement("canvas");
-
-      canvas.width = width;
-      canvas.height = height;
-
-
-      const ctx =
-        canvas.getContext(
-          "2d",
-          { alpha: true }
-        );
-
-      if (!ctx) {
-        throw new Error(
-          "Không thể tạo Canvas."
-        );
-      }
-
-
-      ctx.drawImage(
-        image,
-        0,
-        0,
-        width,
-        height
-      );
-
-
-      const pngBlob =
-        await new Promise(
-          (resolve, reject) => {
-
-            canvas.toBlob(
-              blob => {
-
-                if (!blob) {
-
-                  reject(
-                    new Error(
-                      "Không thể chuyển ảnh sang PNG."
-                    )
-                  );
-
-                  return;
-                }
-
-                resolve(blob);
-
-              },
-              "image/png"
-            );
-
-          }
-        );
-
-
-      return new File(
-        [pngBlob],
-        "images.png",
-        {
-          type: "image/png",
-          lastModified: Date.now()
-        }
-      );
-
-    } finally {
-
-      URL.revokeObjectURL(
-        objectUrl
-      );
-
-    }
-
+    uploadBtn.disabled = true;
+    return;
   }
 
+  selectedFile = file;
 
-  fileInput.addEventListener(
-    "change",
-    async () => {
+  preview.src = URL.createObjectURL(file);
+  preview.style.display = "block";
 
-      const file =
-        fileInput.files?.[0];
+  statusBox.textContent =
+    "✅ Đã chọn: " + file.name;
 
-      if (!file) {
-        return;
+  uploadBtn.disabled = false;
+
+  urlBox.style.display = "none";
+});
+
+
+/*
+  CHUYỂN ẢNH THÀNH PNG
+*/
+function convertToPNG(file) {
+
+  return new Promise((resolve, reject) => {
+
+    const img = new Image();
+
+    const objectUrl = URL.createObjectURL(file);
+
+    img.onload = function () {
+
+      URL.revokeObjectURL(objectUrl);
+
+      const canvas = document.createElement("canvas");
+
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+
+      const ctx = canvas.getContext("2d");
+
+      ctx.drawImage(
+        img,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+
+      canvas.toBlob(
+        function (blob) {
+
+          if (!blob) {
+            reject(
+              new Error("Không thể chuyển ảnh sang PNG.")
+            );
+            return;
+          }
+
+          resolve(blob);
+
+        },
+        "image/png"
+      );
+    };
+
+    img.onerror = function () {
+
+      URL.revokeObjectURL(objectUrl);
+
+      reject(
+        new Error("Không thể đọc hình ảnh.")
+      );
+    };
+
+    img.src = objectUrl;
+
+  });
+
+}
+
+
+/*
+  UPLOAD
+*/
+uploadBtn.addEventListener("click", async function () {
+
+  if (!selectedFile) {
+    return;
+  }
+
+  uploadBtn.disabled = true;
+
+  progressBox.style.display = "block";
+
+  progress.style.width = "0%";
+  percent.textContent = "0%";
+
+  statusBox.textContent =
+    "⏳ Đang chuyển ảnh sang PNG...";
+
+  urlBox.style.display = "none";
+
+  try {
+
+    const pngBlob =
+      await convertToPNG(selectedFile);
+
+
+    /*
+      Server Upload giới hạn an toàn khoảng 4MB.
+    */
+    if (pngBlob.size > 4 * 1024 * 1024) {
+
+      throw new Error(
+        "Ảnh PNG sau khi chuyển đổi lớn hơn 4MB. Hãy chọn ảnh nhỏ hơn."
+      );
+    }
+
+
+    statusBox.textContent =
+      "⏳ Đang upload lên Vercel Blob...";
+
+
+    const xhr = new XMLHttpRequest();
+
+    xhr.open(
+      "POST",
+      "/api/upload",
+      true
+    );
+
+    xhr.setRequestHeader(
+      "Content-Type",
+      "image/png"
+    );
+
+
+    /*
+      Thanh tiến trình
+    */
+    xhr.upload.addEventListener(
+      "progress",
+      function (event) {
+
+        if (event.lengthComputable) {
+
+          const value =
+            Math.round(
+              (event.loaded / event.total) * 100
+            );
+
+          progress.style.width =
+            value + "%";
+
+          percent.textContent =
+            value + "%";
+        }
+
       }
+    );
 
 
-      result.style.display =
-        "none";
+    xhr.onload = function () {
 
-      progressWrap.style.display =
-        "none";
+      uploadBtn.disabled = false;
 
-      resetProgress();
-
-
-      if (
-        !file.type.startsWith(
-          "image/"
-        )
-      ) {
-
-        setStatus(
-          "❌ File đã chọn không phải ảnh.",
-          "error"
-        );
-
-        return;
-
-      }
-
-
-      /*
-       * Preview ảnh gốc trước upload.
-       */
-      const previewUrl =
-        URL.createObjectURL(file);
-
-      preview.src =
-        previewUrl;
-
-      previewWrap.style.display =
-        "block";
-
+      let data;
 
       try {
 
-        setStatus(
-          "⏳ Đang chuẩn bị ảnh..."
-        );
-
-
-        /*
-         * Chuyển ảnh thành PNG.
-         */
-        const pngFile =
-          await convertToPng(file);
-
-
-        /*
-         * Kiểm tra kích thước.
-         *
-         * Client upload không bị giới hạn
-         * 4.5 MB của server upload,
-         * nhưng chúng ta vẫn giới hạn ảnh
-         * để website hoạt động ổn định.
-         */
-        const maxUploadSize =
-          20 * 1024 * 1024;
-
-
-        if (
-          pngFile.size >
-          maxUploadSize
-        ) {
-
-          throw new Error(
-            "Ảnh PNG sau khi chuyển đổi vượt quá 20 MB."
-          );
-
-        }
-
-
-        setStatus(
-          "⏳ Đang kết nối Vercel Blob..."
-        );
-
-
-        progressWrap.style.display =
-          "block";
-
-
-        /*
-         * QUAN TRỌNG:
-         *
-         * Không đặt:
-         * addRandomSuffix
-         * allowOverwrite
-         * cacheControlMaxAge
-         *
-         * ở đây.
-         *
-         * Các tùy chọn này được cấu hình
-         * ở api/upload.js.
-         */
-        const blob =
-          await upload(
-            "images.png",
-            pngFile,
-            {
-
-              access: "public",
-
-              handleUploadUrl:
-                "/api/upload",
-
-              onUploadProgress:
-                event => {
-
-                  const p =
-                    Math.round(
-                      event.percentage
-                    );
-
-                  bar.style.width =
-                    p + "%";
-
-                  percent.textContent =
-                    p + "%";
-
-                }
-
-            }
-          );
-
-
-        /*
-         * Upload thành công.
-         */
-        bar.style.width =
-          "100%";
-
-        percent.textContent =
-          "100%";
-
-
-        url.value =
-          blob.url;
-
-        openBtn.href =
-          blob.url;
-
-
-        result.style.display =
-          "block";
-
-
-        setStatus(
-          "✅ Upload ảnh thành công!",
-          "success"
-        );
-
+        data = JSON.parse(xhr.responseText);
 
       } catch (error) {
 
-        console.error(
-          "UPLOAD ERROR:",
-          error
-        );
+        statusBox.textContent =
+          "❌ Server trả về dữ liệu không hợp lệ.";
 
+        console.log(xhr.responseText);
 
-        let message =
-          error?.message ||
-          "Không xác định";
-
-
-        setStatus(
-          "❌ Upload lỗi: " + message,
-          "error"
-        );
-
-      }
-
-    }
-  );
-
-
-  copyBtn.addEventListener(
-    "click",
-    async () => {
-
-      const value =
-        url.value.trim();
-
-      if (!value) {
         return;
       }
 
 
-      try {
+      if (xhr.status >= 200 && xhr.status < 300 && data.success) {
 
-        await navigator.clipboard
-          .writeText(value);
+        progress.style.width = "100%";
+        percent.textContent = "100%";
 
-        copyBtn.textContent =
-          "ĐÃ COPY ✓";
+        statusBox.innerHTML =
+          "✅ <b>UPLOAD THÀNH CÔNG!</b><br>" +
+          "Tên file: images.png";
 
+        imageUrl.value = data.url;
 
-        setTimeout(
-          () => {
+        urlBox.style.display = "block";
 
-            copyBtn.textContent =
-              "COPY";
+      } else {
 
-          },
-          1500
-        );
-
-
-      } catch {
-
-        url.focus();
-
-        url.select();
-
-        document.execCommand(
-          "copy"
-        );
-
-        copyBtn.textContent =
-          "ĐÃ COPY ✓";
+        statusBox.textContent =
+          "❌ " +
+          (data.error || "Upload thất bại.");
 
       }
 
-    }
-  );
+    };
+
+
+    xhr.onerror = function () {
+
+      uploadBtn.disabled = false;
+
+      statusBox.textContent =
+        "❌ Không thể kết nối API /api/upload.";
+
+    };
+
+
+    xhr.send(pngBlob);
+
+  } catch (error) {
+
+    uploadBtn.disabled = false;
+
+    statusBox.textContent =
+      "❌ " + error.message;
+
+  }
+
+});
+
+
+/*
+  COPY URL
+*/
+copyBtn.addEventListener("click", async function () {
+
+  try {
+
+    await navigator.clipboard.writeText(
+      imageUrl.value
+    );
+
+    copyBtn.textContent =
+      "✅ ĐÃ SAO CHÉP";
+
+    setTimeout(() => {
+
+      copyBtn.textContent =
+        "📋 SAO CHÉP URL";
+
+    }, 1500);
+
+  } catch (error) {
+
+    imageUrl.select();
+
+    document.execCommand("copy");
+
+    copyBtn.textContent =
+      "✅ ĐÃ SAO CHÉP";
+  }
+
+});
+
+
+/*
+  MỞ ẢNH
+*/
+openBtn.addEventListener("click", function () {
+
+  if (imageUrl.value) {
+
+    window.open(
+      imageUrl.value,
+      "_blank"
+    );
+
+  }
+
+});
 
 </script>
 
