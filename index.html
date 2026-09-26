@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>FFVN.TGM Image API</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  background:
+    radial-gradient(circle at top, #ff7a00, transparent 35%),
+    #080808;
+  color: white;
+  padding: 20px;
+}
+
+.container {
+  width: 100%;
+  max-width: 600px;
+  margin: auto;
+}
+
+.logo {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 900;
+  margin: 20px 0 8px;
+}
+
+.subtitle {
+  text-align: center;
+  color: #aaa;
+  margin-bottom: 25px;
+}
+
+.card {
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.12);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 15px 50px rgba(0,0,0,.4);
+}
+
+.upload {
+  width: 100%;
+  padding: 18px;
+  border: 2px dashed #ff7900;
+  border-radius: 15px;
+  text-align: center;
+  cursor: pointer;
+  background: rgba(255,121,0,.08);
+}
+
+.upload input {
+  display: none;
+}
+
+.preview {
+  width: 100%;
+  margin-top: 20px;
+  border-radius: 15px;
+  display: none;
+  max-height: 400px;
+  object-fit: contain;
+  background: #111;
+}
+
+.filename {
+  margin-top: 15px;
+  padding: 13px;
+  border-radius: 10px;
+  background: #111;
+  color: #ff9a3c;
+  word-break: break-all;
+}
+
+button {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  padding: 15px;
+  margin-top: 15px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.uploadBtn {
+  background: #ff7900;
+  color: white;
+}
+
+.copyBtn {
+  background: #222;
+  color: white;
+}
+
+button:disabled {
+  opacity: .5;
+}
+
+.result {
+  display: none;
+  margin-top: 20px;
+}
+
+.resultBox {
+  background: #050505;
+  padding: 14px;
+  border-radius: 12px;
+  word-break: break-all;
+  color: #8cff8c;
+  font-size: 14px;
+}
+
+.status {
+  margin-top: 15px;
+  text-align: center;
+  color: #aaa;
+}
+
+.error {
+  color: #ff5555;
+}
+
+.success {
+  color: #55ff88;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="logo">
+    🔥 FFVN.TGM IMAGE API
+  </div>
+
+  <div class="subtitle">
+    Upload ảnh → Tạo URL ảnh
+  </div>
+
+  <div class="card">
+
+    <label class="upload">
+
+      📱
+      <br><br>
+
+      <strong>CHỌN ẢNH TỪ ALBUM</strong>
+
+      <br>
+
+      <small>
+        JPG / PNG / WEBP
+      </small>
+
+      <input
+        id="fileInput"
+        type="file"
+        accept="image/*">
+    </label>
+
+    <img
+      id="preview"
+      class="preview">
+
+    <div
+      id="filename"
+      class="filename"
+      style="display:none;">
+    </div>
+
+    <button
+      id="uploadBtn"
+      class="uploadBtn"
+      disabled>
+      ⬆️ UPLOAD ẢNH
+    </button>
+
+    <div
+      id="status"
+      class="status">
+      Chưa chọn ảnh
+    </div>
+
+    <div
+      id="result"
+      class="result">
+
+      <div style="margin-bottom:8px;">
+        🔗 URL ẢNH
+      </div>
+
+      <div
+        id="resultUrl"
+        class="resultBox">
+      </div>
+
+      <button
+        id="copyBtn"
+        class="copyBtn">
+        📋 SAO CHÉP URL
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+const fileInput =
+  document.getElementById("fileInput");
+
+const preview =
+  document.getElementById("preview");
+
+const filenameBox =
+  document.getElementById("filename");
+
+const uploadBtn =
+  document.getElementById("uploadBtn");
+
+const statusBox =
+  document.getElementById("status");
+
+const result =
+  document.getElementById("result");
+
+const resultUrl =
+  document.getElementById("resultUrl");
+
+const copyBtn =
+  document.getElementById("copyBtn");
+
+let selectedFile = null;
+
+
+/*
+  CHỌN ẢNH
+*/
+fileInput.addEventListener("change", () => {
+
+  const file = fileInput.files[0];
+
+  if (!file) return;
+
+  selectedFile = file;
+
+  filenameBox.style.display = "block";
+
+  filenameBox.textContent =
+    "ID ảnh: " + file.name;
+
+  preview.src =
+    URL.createObjectURL(file);
+
+  preview.style.display = "block";
+
+  uploadBtn.disabled = false;
+
+  result.style.display = "none";
+
+  statusBox.textContent =
+    "Sẵn sàng upload";
+
+  statusBox.className =
+    "status";
+
+});
+
+
+/*
+  GIẢM DUNG LƯỢNG ẢNH
+*/
+function compressImage(file) {
+
+  return new Promise((resolve, reject) => {
+
+    const img = new Image();
+
+    const reader = new FileReader();
+
+    reader.onload = e => {
+
+      img.onload = () => {
+
+        const maxSize = 1600;
+
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxSize ||
+            height > maxSize) {
+
+          if (width > height) {
+
+            height =
+              height * maxSize / width;
+
+            width = maxSize;
+
+          } else {
+
+            width =
+              width * maxSize / height;
+
+            height = maxSize;
+
+          }
+        }
+
+        const canvas =
+          document.createElement("canvas");
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx =
+          canvas.getContext("2d");
+
+        ctx.drawImage(
+          img,
+          0,
+          0,
+          width,
+          height
+        );
+
+        const data =
+          canvas.toDataURL(
+            "image/jpeg",
+            0.85
+          );
+
+        resolve(data);
+
+      };
+
+      img.onerror = reject;
+
+      img.src = e.target.result;
+    };
+
+    reader.onerror = reject;
+
+    reader.readAsDataURL(file);
+
+  });
+
+}
+
+
+/*
+  UPLOAD
+*/
+uploadBtn.addEventListener("click", async () => {
+
+  if (!selectedFile) return;
+
+  uploadBtn.disabled = true;
+
+  statusBox.textContent =
+    "Đang xử lý ảnh...";
+
+  statusBox.className =
+    "status";
+
+  try {
+
+    const base64 =
+      await compressImage(selectedFile);
+
+    statusBox.textContent =
+      "Đang upload...";
+
+    const response =
+      await fetch("/api/upload", {
+
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json"
+        },
+
+        body: JSON.stringify({
+
+          filename:
+            selectedFile.name,
+
+          contentType:
+            "image/jpeg",
+
+          data:
+            base64
+
+        })
+
+      });
+
+    const data =
+      await response.json();
+
+    if (!response.ok ||
+        !data.success) {
+
+      throw new Error(
+        data.message ||
+        "Upload thất bại"
+      );
+
+    }
+
+    result.style.display =
+      "block";
+
+    resultUrl.textContent =
+      data.url;
+
+    statusBox.textContent =
+      "✅ Upload thành công!";
+
+    statusBox.className =
+      "status success";
+
+  } catch (error) {
+
+    statusBox.textContent =
+      "❌ " + error.message;
+
+    statusBox.className =
+      "status error";
+
+  }
+
+  uploadBtn.disabled = false;
+
+});
+
+
+/*
+  COPY URL
+*/
+copyBtn.addEventListener("click", async () => {
+
+  const url =
+    resultUrl.textContent;
+
+  try {
+
+    await navigator.clipboard.writeText(url);
+
+    copyBtn.textContent =
+      "✅ ĐÃ SAO CHÉP";
+
+    setTimeout(() => {
+
+      copyBtn.textContent =
+        "📋 SAO CHÉP URL";
+
+    }, 1500);
+
+  } catch {
+
+    alert(url);
+
+  }
+
+});
+
+</script>
+
+</body>
+</html>
