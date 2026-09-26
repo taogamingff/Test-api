@@ -1,31 +1,16 @@
+import { get } from "@vercel/blob";
+
 export default async function handler(req, res) {
+
+  // ==============================
+  // CHỈ CHO PHÉP GET
+  // ==============================
 
   if (req.method !== "GET") {
 
     return res.status(405).json({
       success: false,
-      error: "Method không được hỗ trợ"
-    });
-
-  }
-
-
-  const imageUrl =
-    req.query.url;
-
-
-  if (!imageUrl) {
-
-    return res.status(400).json({
-
-      success: false,
-
-      error:
-        "Thiếu tham số url",
-
-      example:
-        "/api/image?url=IMAGE_URL"
-
+      error: "Method Not Allowed"
     });
 
   }
@@ -33,66 +18,108 @@ export default async function handler(req, res) {
 
   try {
 
-    const response =
-      await fetch(imageUrl);
+    // ==============================
+    // STORE ID
+    // ==============================
+
+    const storeId =
+      process.env.BLOB_READ_WRITE_TOKEN_STORE_ID ||
+      process.env.BLOB_STORE_ID;
 
 
-    if (!response.ok) {
+    if (!storeId) {
 
-      return res.status(
-        response.status
-      ).json({
-
+      return res.status(500).json({
         success: false,
-
-        error:
-          "Không tải được ảnh."
-
+        error: "BLOB_STORE_ID_MISSING",
+        message:
+          "Chưa tìm thấy Blob Store ID."
       });
 
     }
 
 
-    const contentType =
-      response.headers.get(
-        "content-type"
-      ) || "image/png";
+    // ==============================
+    // LẤY images.png
+    // ==============================
+
+    const result =
+      await get(
+        "images.png",
+        {
+          access: "public",
+          storeId: storeId
+        }
+      );
 
 
-    const arrayBuffer =
-      await response.arrayBuffer();
+    if (!result || !result.stream) {
+
+      return res.status(404).json({
+        success: false,
+        error: "IMAGE_NOT_FOUND",
+        message:
+          "Chưa có images.png trong Blob."
+      });
+
+    }
 
 
-    const buffer =
-      Buffer.from(arrayBuffer);
-
+    // ==============================
+    // HEADER
+    // ==============================
 
     res.setHeader(
       "Content-Type",
-      contentType
+      result.blob?.contentType ||
+      "image/png"
     );
 
 
     res.setHeader(
       "Cache-Control",
-      "public, max-age=31536000, immutable"
+      "public, max-age=60, s-maxage=300"
     );
 
 
-    return res.status(200).send(buffer);
+    // ==============================
+    // TRẢ ẢNH TRỰC TIẾP
+    // ==============================
+
+    return new Response(
+      result.stream,
+      {
+        status: 200,
+        headers: {
+          "Content-Type":
+            result.blob?.contentType ||
+            "image/png",
+
+          "Cache-Control":
+            "public, max-age=60, s-maxage=300"
+        }
+      }
+    );
 
 
   } catch (error) {
+
+    console.error(
+      "IMAGE API ERROR:",
+      error
+    );
+
 
     return res.status(500).json({
 
       success: false,
 
       error:
-        "IMAGE_PREVIEW_FAILED",
+        "IMAGE_READ_FAILED",
 
       message:
-        error.message
+        error?.message ||
+        "Không thể đọc ảnh."
 
     });
 
