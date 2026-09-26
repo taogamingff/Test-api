@@ -1,724 +1,726 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta
-  name="viewport"
-  content="width=device-width,initial-scale=1.0"
->
-
-<title>FFVN.TGM Image API</title>
-
-<style>
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  min-height: 100vh;
-  padding: 20px;
-
-  font-family:
-    Arial,
-    sans-serif;
-
-  color: white;
-
-  background:
-    radial-gradient(
-      circle at top,
-      #ff7900 0,
-      transparent 35%
-    ),
-    #080808;
-}
-
-.container {
-  width: 100%;
-  max-width: 600px;
-  margin: auto;
-}
-
-.logo {
-  text-align: center;
-
-  font-size: 28px;
-
-  font-weight: 900;
-
-  margin-top: 20px;
-}
-
-.subtitle {
-  text-align: center;
-
-  color: #aaa;
-
-  margin:
-    8px 0 25px;
-}
-
-.card {
-  padding: 20px;
-
-  border-radius: 22px;
-
-  background:
-    rgba(255,255,255,.08);
-
-  border:
-    1px solid
-    rgba(255,255,255,.12);
-
-  backdrop-filter:
-    blur(15px);
-}
-
-.pick {
-  display: block;
-
-  padding: 28px 15px;
-
-  text-align: center;
-
-  border:
-    2px dashed
-    #ff7900;
-
-  border-radius: 16px;
-
-  background:
-    rgba(255,121,0,.08);
-
-  cursor: pointer;
-}
-
-.pick input {
-  display: none;
-}
-
-.preview {
-  display: none;
-
-  width: 100%;
-
-  max-height: 400px;
-
-  object-fit: contain;
-
-  margin-top: 20px;
-
-  border-radius: 15px;
-
-  background: #111;
-}
-
-.filename {
-  display: none;
-
-  margin-top: 15px;
-
-  padding: 13px;
-
-  background: #111;
-
-  border-radius: 10px;
-
-  color: #ff9a3c;
-
-  word-break: break-all;
-}
-
-button {
-  width: 100%;
-
-  padding: 15px;
-
-  margin-top: 15px;
-
-  border: 0;
-
-  border-radius: 12px;
-
-  font-size: 16px;
-
-  font-weight: bold;
-
-  cursor: pointer;
-}
-
-.upload {
-  color: white;
-
-  background: #ff7900;
-}
-
-.upload:disabled {
-  opacity: .45;
-
-  cursor: not-allowed;
-}
-
-.status {
-  text-align: center;
-
-  margin-top: 15px;
-
-  color: #aaa;
-
-  word-break: break-word;
-}
-
-.success {
-  color: #55ff88;
-}
-
-.error {
-  color: #ff5555;
-}
-
-.result {
-  display: none;
-
-  margin-top: 25px;
-}
-
-.title {
-  margin-top: 15px;
-
-  margin-bottom: 7px;
-
-  font-weight: bold;
-}
-
-.box {
-  padding: 13px;
-
-  border-radius: 10px;
-
-  background: #050505;
-
-  border:
-    1px solid #292929;
-
-  color: #64ff8a;
-
-  font-size: 13px;
-
-  word-break: break-all;
-}
-
-.copy {
-  background: #222;
-
-  color: white;
-}
-
-.open {
-  display: block;
-
-  padding: 14px;
-
-  margin-top: 10px;
-
-  border-radius: 10px;
-
-  background: #333;
-
-  color: white;
-
-  text-align: center;
-
-  text-decoration: none;
-}
-
-.test {
-  margin-top: 20px;
-
-  padding: 15px;
-
-  border-radius: 12px;
-
-  background: #111;
-
-  color: #aaa;
-
-  font-size: 13px;
-
-  word-break: break-all;
-}
-
-</style>
-
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+  >
+
+  <title>FFVN.TGM IMAGE API 🔥</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top, #242424 0%, #0d0d0d 45%, #050505 100%);
+      color: white;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 700px;
+      margin: auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 900;
+      color: #ff7a00;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 20px;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 15px 40px rgba(0,0,0,.35);
+      margin-bottom: 18px;
+    }
+
+    .upload-box {
+      border: 2px dashed rgba(255,122,0,.5);
+      border-radius: 18px;
+      padding: 35px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .upload-box:hover {
+      border-color: #ff7a00;
+      background: rgba(255,122,0,.05);
+    }
+
+    .upload-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .upload-title {
+      font-size: 19px;
+      font-weight: bold;
+      margin-bottom: 7px;
+    }
+
+    .upload-sub {
+      font-size: 13px;
+      color: #999;
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    .preview {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .preview img {
+      width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+      background: #000;
+      border-radius: 15px;
+      border: 1px solid rgba(255,255,255,.1);
+    }
+
+    .filename {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #aaa;
+      word-break: break-all;
+    }
+
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 13px;
+      padding: 15px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+
+    .upload-btn {
+      background: linear-gradient(135deg,#ff9800,#ff5e00);
+      color: white;
+    }
+
+    .upload-btn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .secondary-btn {
+      background: #242424;
+      color: white;
+      border: 1px solid rgba(255,255,255,.1);
+    }
+
+    .result {
+      display: none;
+    }
+
+    .result h2 {
+      font-size: 18px;
+      margin-bottom: 15px;
+      color: #ff9800;
+    }
+
+    .result-row {
+      margin-bottom: 14px;
+    }
+
+    .result-label {
+      color: #888;
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+
+    .result-value {
+      background: #090909;
+      border: 1px solid #252525;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      word-break: break-all;
+      line-height: 1.5;
+    }
+
+    .copy-btn {
+      margin-top: 7px;
+      padding: 10px;
+      font-size: 13px;
+      background: #1e1e1e;
+      color: white;
+    }
+
+    .open-btn {
+      background: #ff6d00;
+      color: white;
+    }
+
+    .status {
+      display: none;
+      padding: 13px;
+      border-radius: 10px;
+      margin-top: 15px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .status.loading {
+      display: block;
+      background: rgba(255,152,0,.1);
+      border: 1px solid rgba(255,152,0,.3);
+      color: #ffb74d;
+    }
+
+    .status.success {
+      display: block;
+      background: rgba(0,200,100,.1);
+      border: 1px solid rgba(0,200,100,.3);
+      color: #66e0a0;
+    }
+
+    .status.error {
+      display: block;
+      background: rgba(255,50,50,.1);
+      border: 1px solid rgba(255,50,50,.3);
+      color: #ff7777;
+    }
+
+    .info {
+      color: #888;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .info strong {
+      color: #ddd;
+    }
+
+    @media(max-width:500px) {
+      body {
+        padding: 12px;
+      }
+
+      .header h1 {
+        font-size: 23px;
+      }
+
+      .card {
+        padding: 15px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
 <div class="container">
 
-<div class="logo">
-🔥 FFVN.TGM IMAGE API
+  <div class="header">
+    <h1>🔥 FFVN.TGM IMAGE API</h1>
+    <p>Upload ảnh → tự tạo images.png → tạo URL</p>
+  </div>
+
+  <div class="card">
+
+    <label class="upload-box" for="fileInput">
+
+      <div class="upload-icon">🖼️</div>
+
+      <div class="upload-title">
+        Chọn ảnh từ Album
+      </div>
+
+      <div class="upload-sub">
+        Nhấn vào đây để chọn ảnh trên điện thoại
+      </div>
+
+    </label>
+
+    <input
+      id="fileInput"
+      type="file"
+      accept="image/*"
+    >
+
+    <div class="preview" id="preview">
+
+      <img id="previewImage">
+
+      <div class="filename" id="originalName"></div>
+
+      <button
+        class="upload-btn"
+        id="uploadBtn"
+        disabled
+      >
+        🚀 TẠO URL ẢNH
+      </button>
+
+    </div>
+
+    <div
+      class="status"
+      id="status"
+    ></div>
+
+  </div>
+
+
+  <div
+    class="card result"
+    id="result"
+  >
+
+    <h2>✅ ẢNH ĐÃ TẠO</h2>
+
+    <div class="result-row">
+
+      <div class="result-label">
+        Tên file
+      </div>
+
+      <div
+        class="result-value"
+        id="fileNameResult"
+      >
+        images.png
+      </div>
+
+    </div>
+
+
+    <div class="result-row">
+
+      <div class="result-label">
+        URL ảnh trực tiếp
+      </div>
+
+      <div
+        class="result-value"
+        id="imageUrlResult"
+      ></div>
+
+      <button
+        class="copy-btn"
+        onclick="copyText('imageUrlResult')"
+      >
+        📋 SAO CHÉP URL ẢNH
+      </button>
+
+      <button
+        class="open-btn"
+        onclick="openImage()"
+      >
+        🖼️ MỞ ẢNH
+      </button>
+
+    </div>
+
+
+    <div class="result-row">
+
+      <div class="result-label">
+        API Preview
+      </div>
+
+      <div
+        class="result-value"
+        id="apiUrlResult"
+      ></div>
+
+      <button
+        class="copy-btn"
+        onclick="copyText('apiUrlResult')"
+      >
+        📋 SAO CHÉP API URL
+      </button>
+
+      <button
+        class="open-btn"
+        onclick="openApi()"
+      >
+        🔗 MỞ API
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="info">
+
+      <strong>📌 Cách hoạt động</strong>
+
+      <br>
+
+      1. Chọn ảnh từ Album.
+
+      <br>
+
+      2. Website gửi ảnh lên API.
+
+      <br>
+
+      3. Server tự đặt tên file thành
+      <strong>images.png</strong>.
+
+      <br>
+
+      4. Ảnh được lưu trên Vercel Blob.
+
+      <br>
+
+      5. API trả về URL ảnh.
+
+      <br>
+
+      6. URL API có thể mở để xem ảnh.
+
+    </div>
+
+  </div>
+
 </div>
 
-<div class="subtitle">
-Upload ảnh từ Album → tạo URL ảnh
-</div>
-
-<div class="card">
-
-<label class="pick">
-
-📱
-
-<br><br>
-
-<strong>
-CHỌN ẢNH TỪ ALBUM
-</strong>
-
-<br><br>
-
-<small>
-JPG • PNG • WEBP • GIF
-</small>
-
-<input
-  id="file"
-  type="file"
-  accept="image/*"
->
-
-</label>
-
-<img
-  id="preview"
-  class="preview"
->
-
-<div
-  id="filename"
-  class="filename"
-></div>
-
-<button
-  id="upload"
-  class="upload"
-  disabled
->
-⬆️ UPLOAD ẢNH
-</button>
-
-<div
-  id="status"
-  class="status"
->
-Chưa chọn ảnh
-</div>
-
-<div
-  id="result"
-  class="result"
->
-
-<div class="title">
-🆔 ID ẢNH
-</div>
-
-<div
-  id="id"
-  class="box"
-></div>
-
-<div class="title">
-🔗 API URL
-</div>
-
-<div
-  id="api"
-  class="box"
-></div>
-
-<button
-  id="copyApi"
-  class="copy"
->
-📋 COPY API URL
-</button>
-
-<div class="title">
-🖼️ IMAGE URL
-</div>
-
-<div
-  id="image"
-  class="box"
-></div>
-
-<button
-  id="copyImage"
-  class="copy"
->
-📋 COPY IMAGE URL
-</button>
-
-<a
-  id="open"
-  class="open"
-  target="_blank"
->
-👁️ MỞ ẢNH
-</a>
-
-</div>
-
-<div class="test">
-
-API kiểm tra:
-
-<br><br>
-
-<span id="testUrl">
-Đang kiểm tra...
-</span>
-
-</div>
-
-</div>
-
-</div>
 
 <script>
 
-const fileInput =
-  document.getElementById("file");
+const fileInput = document.getElementById("fileInput");
+const uploadBtn = document.getElementById("uploadBtn");
 
-const preview =
-  document.getElementById("preview");
+const preview = document.getElementById("preview");
+const previewImage = document.getElementById("previewImage");
 
-const filenameBox =
-  document.getElementById("filename");
+const originalName = document.getElementById("originalName");
 
-const uploadButton =
-  document.getElementById("upload");
+const statusBox = document.getElementById("status");
 
-const statusBox =
-  document.getElementById("status");
+const result = document.getElementById("result");
 
-const result =
-  document.getElementById("result");
+const imageUrlResult =
+  document.getElementById("imageUrlResult");
 
-const idBox =
-  document.getElementById("id");
-
-const apiBox =
-  document.getElementById("api");
-
-const imageBox =
-  document.getElementById("image");
-
-const openButton =
-  document.getElementById("open");
-
-const copyApi =
-  document.getElementById("copyApi");
-
-const copyImage =
-  document.getElementById("copyImage");
-
-const testUrl =
-  document.getElementById("testUrl");
+const apiUrlResult =
+  document.getElementById("apiUrlResult");
 
 let selectedFile = null;
+let finalImageUrl = "";
+let finalApiUrl = "";
 
 
 /*
- * API URL
- */
+  CHỌN ẢNH
+*/
 
-const API_URL =
-  window.location.origin +
-  "/api/upload";
+fileInput.addEventListener("change", function () {
 
-testUrl.textContent =
-  API_URL;
+  const file = this.files[0];
 
-
-/*
- * TEST API
- */
-
-fetch(API_URL)
-  .then(async response => {
-
-    const text =
-      await response.text();
-
-    try {
-
-      const data =
-        JSON.parse(text);
-
-      if (data.success) {
-
-        testUrl.textContent =
-          "✅ API ONLINE • " +
-          data.blob;
-
-      } else {
-
-        testUrl.textContent =
-          "❌ " +
-          (data.message ||
-           "API lỗi");
-
-      }
-
-    } catch {
-
-      testUrl.textContent =
-        "❌ API không trả JSON";
-
-    }
-
-  })
-  .catch(error => {
-
-    testUrl.textContent =
-      "❌ Không kết nối được API";
-
-  });
-
-
-/*
- * CHỌN ẢNH
- */
-
-fileInput.addEventListener(
-  "change",
-  function () {
-
-    const file =
-      this.files[0];
-
-    if (!file) return;
-
-    selectedFile = file;
-
-    preview.src =
-      URL.createObjectURL(
-        file
-      );
-
-    preview.style.display =
-      "block";
-
-    filenameBox.style.display =
-      "block";
-
-    filenameBox.textContent =
-      "🆔 ID: " +
-      file.name;
-
-    uploadButton.disabled =
-      false;
-
-    result.style.display =
-      "none";
-
-    statusBox.textContent =
-      "Đã chọn: " +
-      file.name;
-
-    statusBox.className =
-      "status";
+  if (!file) {
+    return;
   }
-);
 
+  if (!file.type.startsWith("image/")) {
 
-/*
- * UPLOAD
- */
+    showStatus(
+      "❌ File bạn chọn không phải là ảnh.",
+      "error"
+    );
 
-uploadButton.addEventListener(
-  "click",
-  async function () {
-
-    if (!selectedFile) return;
-
-    uploadButton.disabled =
-      true;
-
-    statusBox.textContent =
-      "⏳ Đang upload...";
-
-    statusBox.className =
-      "status";
-
-    result.style.display =
-      "none";
-
-    try {
-
-      const formData =
-        new FormData();
-
-      formData.append(
-        "file",
-        selectedFile
-      );
-
-      const response =
-        await fetch(
-          API_URL,
-          {
-            method: "POST",
-            body: formData
-          }
-        );
-
-      const text =
-        await response.text();
-
-      let data;
-
-      try {
-
-        data =
-          JSON.parse(text);
-
-      } catch {
-
-        throw new Error(
-          "API không trả JSON. HTTP " +
-          response.status +
-          ": " +
-          text.substring(0, 300)
-        );
-
-      }
-
-      if (
-        !response.ok ||
-        !data.success
-      ) {
-
-        throw new Error(
-          data.message ||
-          data.error ||
-          "Upload thất bại"
-        );
-
-      }
-
-
-      /*
-       * HIỆN KẾT QUẢ
-       */
-
-      result.style.display =
-        "block";
-
-      idBox.textContent =
-        data.id;
-
-      apiBox.textContent =
-        data.apiUrl;
-
-      imageBox.textContent =
-        data.imageUrl;
-
-      openButton.href =
-        data.imageUrl;
-
-      statusBox.textContent =
-        "✅ UPLOAD THÀNH CÔNG!";
-
-      statusBox.className =
-        "status success";
-
-
-    } catch (error) {
-
-      console.error(
-        error
-      );
-
-      statusBox.textContent =
-        "❌ " +
-        error.message;
-
-      statusBox.className =
-        "status error";
-
-    }
-
-    uploadButton.disabled =
-      false;
-
+    return;
   }
-);
+
+  selectedFile = file;
+
+  preview.style.display = "block";
+
+  uploadBtn.disabled = false;
+
+  originalName.textContent =
+    "Ảnh gốc: " + file.name;
+
+
+  const reader = new FileReader();
+
+  reader.onload = function (event) {
+
+    previewImage.src =
+      event.target.result;
+
+  };
+
+  reader.readAsDataURL(file);
+
+
+  result.style.display = "none";
+
+  statusBox.style.display = "none";
+
+});
 
 
 /*
- * COPY
- */
+  UPLOAD
+*/
 
-async function copy(
-  value,
-  button
-) {
+uploadBtn.addEventListener("click", async function () {
 
-  if (!value) return;
+  if (!selectedFile) {
+
+    showStatus(
+      "❌ Chưa chọn ảnh.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  uploadBtn.disabled = true;
+
+  uploadBtn.textContent =
+    "⏳ ĐANG TẢI ẢNH...";
+
+
+  showStatus(
+    "⏳ Đang upload ảnh và tạo URL...",
+    "loading"
+  );
+
 
   try {
 
-    await navigator.clipboard.writeText(
-      value
+    /*
+      Đọc file thành ArrayBuffer.
+      API sẽ nhận binary ảnh.
+    */
+
+    const buffer =
+      await selectedFile.arrayBuffer();
+
+
+    const response =
+      await fetch("/api/upload", {
+
+        method: "POST",
+
+        headers: {
+
+          "Content-Type":
+            selectedFile.type ||
+            "application/octet-stream"
+
+        },
+
+        body: buffer
+
+      });
+
+
+    const data =
+      await response.json();
+
+
+    if (!response.ok || !data.success) {
+
+      throw new Error(
+        data.message ||
+        data.error ||
+        "Upload thất bại"
+      );
+
+    }
+
+
+    finalImageUrl =
+      data.imageUrl;
+
+    finalApiUrl =
+      data.apiUrl;
+
+
+    /*
+      Hiển thị kết quả
+    */
+
+    document.getElementById(
+      "fileNameResult"
+    ).textContent =
+      data.filename || "images.png";
+
+
+    imageUrlResult.textContent =
+      finalImageUrl;
+
+
+    apiUrlResult.textContent =
+      finalApiUrl;
+
+
+    result.style.display =
+      "block";
+
+
+    showStatus(
+      "✅ Upload thành công! Ảnh đã được tạo với tên images.png.",
+      "success"
     );
 
-    const old =
-      button.textContent;
 
-    button.textContent =
-      "✅ ĐÃ COPY";
+    /*
+      Cuộn xuống kết quả
+    */
 
-    setTimeout(
-      () => {
-        button.textContent =
-          old;
-      },
-      1500
+    setTimeout(() => {
+
+      result.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+
+    }, 100);
+
+
+  } catch (error) {
+
+    console.error(error);
+
+
+    showStatus(
+      "❌ Upload thất bại: " +
+      error.message,
+      "error"
+    );
+
+  }
+
+
+  uploadBtn.disabled = false;
+
+  uploadBtn.textContent =
+    "🚀 TẠO URL ẢNH";
+
+});
+
+
+/*
+  STATUS
+*/
+
+function showStatus(message, type) {
+
+  statusBox.textContent =
+    message;
+
+  statusBox.className =
+    "status " + type;
+
+  statusBox.style.display =
+    "block";
+
+}
+
+
+/*
+  COPY
+*/
+
+async function copyText(elementId) {
+
+  const text =
+    document.getElementById(
+      elementId
+    ).textContent;
+
+
+  try {
+
+    await navigator.clipboard.writeText(text);
+
+    showStatus(
+      "✅ Đã sao chép URL.",
+      "success"
     );
 
   } catch {
 
-    alert(value);
+    showStatus(
+      "❌ Không thể sao chép tự động.",
+      "error"
+    );
 
   }
+
 }
 
-copyApi.addEventListener(
-  "click",
-  () => copy(
-    apiBox.textContent,
-    copyApi
-  )
-);
 
-copyImage.addEventListener(
-  "click",
-  () => copy(
-    imageBox.textContent,
-    copyImage
-  )
-);
+/*
+  MỞ ẢNH
+*/
+
+function openImage() {
+
+  if (!finalImageUrl) {
+    return;
+  }
+
+  window.open(
+    finalImageUrl,
+    "_blank"
+  );
+
+}
+
+
+/*
+  MỞ API
+*/
+
+function openApi() {
+
+  if (!finalApiUrl) {
+    return;
+  }
+
+  window.open(
+    finalApiUrl,
+    "_blank"
+  );
+
+}
 
 </script>
 
 </body>
-  </html>
+</html>
