@@ -1,25 +1,87 @@
-import { handleUpload } from "@vercel/blob/client";
+import { put } from "@vercel/blob";
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 
-export default async function handler(
-  request,
-  response
-) {
+/*
+  Đọc toàn bộ request body
+*/
+function readRequestBody(req) {
+
+  return new Promise((resolve, reject) => {
+
+    const chunks = [];
+
+    let totalSize = 0;
+
+    const MAX_SIZE = 4 * 1024 * 1024;
+
+
+    req.on("data", (chunk) => {
+
+      totalSize += chunk.length;
+
+      if (totalSize > MAX_SIZE) {
+
+        reject(
+          new Error(
+            "Ảnh vượt quá giới hạn 4MB."
+          )
+        );
+
+        req.destroy();
+
+        return;
+      }
+
+      chunks.push(chunk);
+
+    });
+
+
+    req.on("end", () => {
+
+      resolve(
+        Buffer.concat(chunks)
+      );
+
+    });
+
+
+    req.on("error", reject);
+
+  });
+
+}
+
+
+/*
+  API
+*/
+export default async function handler(req, res) {
 
   /*
-   * Chỉ cho phép POST.
-   */
-  if (
-    request.method &&
-    request.method !== "POST"
-  ) {
+    Chỉ cho phép POST
+  */
+  if (req.method !== "POST") {
 
-    return response
-      .status(405)
-      .json({
-        success: false,
-        error: "Method Not Allowed"
-      });
+    res.setHeader(
+      "Allow",
+      "POST"
+    );
+
+    return res.status(405).json({
+
+      success: false,
+
+      error:
+        "Method Not Allowed. Hãy sử dụng POST."
+
+    });
 
   }
 
@@ -27,161 +89,114 @@ export default async function handler(
   try {
 
     /*
-     * Vercel Pages API đã parse JSON body.
-     *
-     * KHÔNG dùng:
-     *
-     * request.formData()
-     *
-     * vì đây là API handler kiểu Node.
-     */
-    const body =
-      request.body;
+      Kiểm tra Content-Type
+    */
+    const contentType =
+      req.headers["content-type"] || "";
 
 
-    if (!body) {
+    if (
+      !contentType.includes("image/png")
+    ) {
 
-      return response
-        .status(400)
-        .json({
-          success: false,
-          error:
-            "Request body không tồn tại."
-        });
+      return res.status(400).json({
+
+        success: false,
+
+        error:
+          "API chỉ nhận image/png."
+
+      });
 
     }
 
 
     /*
-     * Tạo client upload token.
-     */
-    const jsonResponse =
-      await handleUpload({
-
-        body,
-
-        request,
+      Đọc file
+    */
+    const body =
+      await readRequestBody(req);
 
 
-        /*
-         * Các tùy chọn upload phải nằm
-         * ở server.
-         */
-        onBeforeGenerateToken:
-          async (
-            pathname,
-            clientPayload
-          ) => {
+    if (!body || body.length === 0) {
 
-            /*
-             * Chỉ cho phép PNG.
-             *
-             * index.html đã chuyển ảnh
-             * sang PNG trước khi upload.
-             */
-            return {
+      return res.status(400).json({
 
-              allowedContentTypes: [
-                "image/png"
-              ],
+        success: false,
 
-
-              /*
-               * Tên chính xác:
-               *
-               * images.png
-               *
-               * Không thêm hậu tố.
-               */
-              addRandomSuffix: false,
-
-
-              /*
-               * Cho phép upload lại
-               * cùng pathname.
-               */
-              allowOverwrite: true,
-
-
-              /*
-               * Cache 60 giây.
-               *
-               * Vì images.png có thể được
-               * thay thế bằng ảnh mới.
-               */
-              cacheControlMaxAge: 60,
-
-
-              /*
-               * Giới hạn 20 MB.
-               */
-              maximumSizeInBytes:
-                20 * 1024 * 1024,
-
-
-              /*
-               * Payload tùy chọn.
-               */
-              tokenPayload:
-                JSON.stringify({
-                  app:
-                    "FFVN.TGM IMAGE API"
-                })
-
-            };
-
-          },
-
-
-        /*
-         * Vercel gọi callback này
-         * sau khi upload hoàn tất.
-         */
-        onUploadCompleted:
-          async ({
-            blob,
-            tokenPayload
-          }) => {
-
-            console.log(
-              "BLOB UPLOAD COMPLETED:",
-              blob.url
-            );
-
-            console.log(
-              "TOKEN PAYLOAD:",
-              tokenPayload
-            );
-
-          }
+        error:
+          "Không nhận được ảnh."
 
       });
 
+    }
 
-    return response
-      .status(200)
-      .json(jsonResponse);
+
+    /*
+      Upload lên Vercel Blob
+    */
+    const blob = await put(
+      "images.png",
+      body,
+      {
+
+        /*
+          Public = ai có URL đều có thể mở ảnh
+        */
+        access: "public",
+
+        /*
+          Không tạo tên ngẫu nhiên
+        */
+        addRandomSuffix: false,
+
+        /*
+          Cho phép ghi đè images.png
+        */
+        allowOverwrite: true,
+
+        /*
+          Định dạng file
+        */
+        contentType: "image/png"
+
+      }
+    );
+
+
+    /*
+      Trả URL
+    */
+    return res.status(200).json({
+
+      success: true,
+
+      filename:
+        "images.png",
+
+      url:
+        blob.url
+
+    });
 
 
   } catch (error) {
 
     console.error(
-      "VERCEL BLOB ERROR:",
+      "UPLOAD ERROR:",
       error
     );
 
 
-    return response
-      .status(400)
-      .json({
+    return res.status(500).json({
 
-        success: false,
+      success: false,
 
-        error:
-          error?.message ||
-          "Vercel Blob upload error"
+      error:
+        error?.message ||
+        "Upload thất bại."
 
-      });
+    });
 
   }
 
