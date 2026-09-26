@@ -1,8 +1,8 @@
 {
-  "name": "ff-image-api",
+  "name": "ffvntgm-image-api",
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "@vercel/blob": "^1.1.1"
+    "@vercel/blob": "^2.3.0"
   }
 }
