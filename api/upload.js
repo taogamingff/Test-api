@@ -2,49 +2,34 @@ import { put } from "@vercel/blob";
 
 export default async function handler(req, res) {
 
-  /*
-  ==========================================
-  GET
-  ==========================================
-  */
+  // ==============================
+  // GET - KIỂM TRA API
+  // ==============================
 
   if (req.method === "GET") {
 
     return res.status(200).json({
-
       success: true,
-
-      name: "FFVN.TGM IMAGE API",
-
+      api: "FFVN.TGM IMAGE API",
       status: "online",
-
       endpoint: "/api/upload",
-
       method: "POST",
-
-      message:
-        "API đang hoạt động. Gửi ảnh bằng POST."
-
+      store: "test-api-blob",
+      message: "API đang hoạt động."
     });
 
   }
 
 
-  /*
-  ==========================================
-  CHỈ CHO PHÉP POST
-  ==========================================
-  */
+  // ==============================
+  // CHỈ CHO PHÉP POST
+  // ==============================
 
   if (req.method !== "POST") {
 
     return res.status(405).json({
-
       success: false,
-
-      error:
-        "Method không được hỗ trợ."
-
+      error: "Method Not Allowed"
     });
 
   }
@@ -52,124 +37,118 @@ export default async function handler(req, res) {
 
   try {
 
-    /*
-    ==========================================
-    KIỂM TRA VERCEL BLOB
-    ==========================================
-    */
+    // ==============================
+    // KIỂM TRA STORE ID
+    // ==============================
 
-    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    const storeId =
+      process.env.BLOB_READ_WRITE_TOKEN_STORE_ID ||
+      process.env.BLOB_STORE_ID;
+
+
+    if (!storeId) {
 
       return res.status(500).json({
-
         success: false,
-
-        error:
-          "BLOB_READ_WRITE_TOKEN_MISSING",
-
+        error: "BLOB_STORE_ID_MISSING",
         message:
-          "Project chưa được kết nối Vercel Blob Storage."
-
+          "Chưa tìm thấy Store ID của Vercel Blob."
       });
 
     }
 
 
-    /*
-    ==========================================
-    NHẬN FILE ẢNH
-    ==========================================
-    */
+    // ==============================
+    // ĐỌC FORM DATA
+    // ==============================
 
-    const chunks = [];
-
-
-    for await (const chunk of req) {
-
-      chunks.push(chunk);
-
-    }
+    const formData =
+      await req.formData();
 
 
-    const buffer =
-      Buffer.concat(chunks);
+    const file =
+      formData.get("file");
 
 
-    if (!buffer.length) {
+    if (!file) {
 
       return res.status(400).json({
-
         success: false,
-
-        error:
-          "Không nhận được dữ liệu ảnh."
-
+        error: "NO_FILE",
+        message:
+          "Không tìm thấy file ảnh."
       });
 
     }
 
 
-    /*
-    ==========================================
-    TÊN FILE TỰ ĐỘNG
-    ==========================================
-    */
+    // ==============================
+    // KIỂM TRA FILE
+    // ==============================
+
+    if (
+      typeof file.type !== "string" ||
+      !file.type.startsWith("image/")
+    ) {
+
+      return res.status(400).json({
+        success: false,
+        error: "INVALID_IMAGE",
+        message:
+          "File được chọn không phải hình ảnh."
+      });
+
+    }
+
+
+    // ==============================
+    // GIỚI HẠN DUNG LƯỢNG
+    // 10 MB
+    // ==============================
+
+    if (file.size > 10 * 1024 * 1024) {
+
+      return res.status(413).json({
+        success: false,
+        error: "FILE_TOO_LARGE",
+        message:
+          "Ảnh tối đa 10 MB."
+      });
+
+    }
+
+
+    // ==============================
+    // TÊN FILE
+    // ==============================
 
     const filename =
       "images.png";
 
 
-    /*
-    ==========================================
-    XÁC ĐỊNH CONTENT TYPE
-    ==========================================
-    */
-
-    const contentType =
-      req.headers["content-type"] ||
-      "image/png";
-
-
-    /*
-    ==========================================
-    UPLOAD VERCEL BLOB
-    ==========================================
-    */
+    // ==============================
+    // UPLOAD BLOB
+    // ==============================
 
     const blob =
       await put(
-
         filename,
-
-        buffer,
-
+        file,
         {
-
           access: "public",
 
-          contentType:
-            contentType,
+          storeId: storeId,
 
-          /*
-            Cho phép nhiều lần upload
-            mà không ghi đè ảnh cũ.
-          */
+          allowOverwrite: true,
 
-          addRandomSuffix: true,
-
-          token:
-            process.env.BLOB_READ_WRITE_TOKEN
-
+          contentType: "image/png"
         }
-
       );
 
 
-    /*
-    ==========================================
-    API URL
-    ==========================================
-    */
+    // ==============================
+    // TẠO API PREVIEW
+    // ==============================
 
     const protocol =
       req.headers["x-forwarded-proto"] ||
@@ -181,22 +160,22 @@ export default async function handler(req, res) {
 
 
     const apiUrl =
-      `${protocol}://${host}/api/image?url=` +
-      encodeURIComponent(blob.url);
+      `${protocol}://${host}/api/image`;
 
 
-    /*
-    ==========================================
-    TRẢ KẾT QUẢ
-    ==========================================
-    */
+    // ==============================
+    // TRẢ KẾT QUẢ
+    // ==============================
 
     return res.status(200).json({
 
       success: true,
 
       filename:
-        filename,
+        "images.png",
+
+      originalFilename:
+        file.name,
 
       imageUrl:
         blob.url,
@@ -204,8 +183,17 @@ export default async function handler(req, res) {
       apiUrl:
         apiUrl,
 
-      type:
-        contentType,
+      previewUrl:
+        apiUrl,
+
+      contentType:
+        "image/png",
+
+      size:
+        file.size,
+
+      store:
+        "test-api-blob",
 
       message:
         "Upload ảnh thành công."
@@ -216,7 +204,7 @@ export default async function handler(req, res) {
   } catch (error) {
 
     console.error(
-      "UPLOAD ERROR:",
+      "BLOB UPLOAD ERROR:",
       error
     );
 
@@ -229,7 +217,8 @@ export default async function handler(req, res) {
         "UPLOAD_FAILED",
 
       message:
-        error.message
+        error?.message ||
+        "Không thể upload ảnh."
 
     });
 
